@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
+    />
+    <title>團圖 · 後台</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/app.css" />
+  </head>
+  <body>
+    <div id="gate" class="login-gate" hidden>
+      <div class="login-card" id="gateLocal">
+        <h1>後台登入（本機）</h1>
+        <p class="muted" style="text-align: center; margin: 0 0 10px 0">密碼在 <code>js/config.js</code> 的
+          <code>localAdminPassword</code>
+        </p>
+        <div class="form-row">
+          <label for="inPw">密碼</label>
+          <input type="password" id="inPw" autocomplete="current-password" />
+        </div>
+        <button type="button" class="btn btn-primary" id="btnGate" style="width: 100%; margin-top: 4px">進入</button>
+      </div>
+    </div>
+    <div id="gateSba" class="login-gate" hidden>
+      <div class="login-card">
+        <h1>Supabase 管理登入</h1>
+        <p class="muted" style="text-align: center; margin: 0 0 10px 0">在 Supabase 建立一個帳密後，於此登入上傳與匯出。</p>
+        <div class="form-row">
+          <label for="inEmail">Email</label>
+          <input type="email" id="inEmail" autocomplete="username" />
+        </div>
+        <div class="form-row">
+          <label for="inSbaPw">密碼</label>
+          <input type="password" id="inSbaPw" autocomplete="current-password" />
+        </div>
+        <button type="button" class="btn btn-primary" id="btnSba" style="width: 100%; margin-top: 4px">登入</button>
+        <p class="muted" id="sbaMsg" style="text-align: center; margin: 8px 0 0 0; min-height: 1.2em"></p>
+      </div>
+    </div>
+
+    <div id="app" class="admin-wrap" hidden>
+      <div class="admin-head">
+        <a href="./index.html" class="btn btn-ghost" style="text-decoration: none; display: inline-block; margin-bottom: 8px"
+          >← 看團圖</a
+        >
+        <h1 style="margin: 0; font-size: 1.4rem" id="adminH1">後台</h1>
+        <p class="muted" id="adminMode" style="margin: 4px 0 0 0">—</p>
+      </div>
+      <div class="panels">
+        <div class="panel" id="panelAdd">
+          <h2>新增團內品項</h2>
+          <p class="muted" style="margin: 0 0 8px 0">「團次」用於在客人頁分類，例如 2026 東京 4/1。</p>
+          <div class="form-row">
+            <label for="defGroup">團次標籤（預設套用到新圖片）</label>
+            <input type="text" id="defGroup" />
+          </div>
+          <div
+            class="dropzone"
+            id="dz"
+            role="button"
+            tabindex="0"
+            style="margin-bottom: 8px; cursor: pointer; user-select: none"
+            aria-label="上傳多張圖"
+          >
+            <span id="dzLead">點此或把照片拖入框內，可一次上傳多張（在東京手機上也可操作）</span>
+            <br /><span id="dzSub" class="muted" style="font-size: 0.82rem">圖片會自動壓小以節省空間</span>
+            <input type="file" id="files" accept="image/*" multiple style="display: none" />
+          </div>
+          <div id="uploadResults" class="muted" style="margin-top: 8px; font-size: 0.85rem; word-break: break-all"></div>
+          <p id="sheetHelp" class="muted" style="display: none; margin: 8px 0 0 0; line-height: 1.45">
+            商品列在試算表：第一分頁欄位建議為「商品名稱、規格、日幣金額、圖片網址」。上傳圖到 Cloudinary 後，把網址貼回「圖片網址」欄；第二分頁設定匯率。
+          </p>
+          <div
+            id="manualBlock"
+            class="form-row"
+            style="flex-direction: row; gap: 8px; flex-wrap: wrap; align-items: end"
+          >
+            <div style="flex: 1; min-width: 100px">
+              <label for="fTitle">品名（可批次共用）</label>
+              <input type="text" id="fTitle" placeholder="例：某某扭蛋" />
+            </div>
+            <div style="width: 100px">
+              <label for="fPrice">單價</label>
+              <input type="number" id="fPrice" min="0" value="0" inputmode="decimal" />
+            </div>
+            <div style="flex: 1; min-width: 100px">
+              <label for="fNote">備註</label>
+              <input type="text" id="fNote" placeholder="例：兩天內截單" />
+            </div>
+            <div style="width: 100%">
+              <button type="button" class="btn btn-primary" id="btnAdd">加入一筆（不選圖）</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>已上傳的品目</h2>
+          <div class="table-wrap" id="prodWrap">載入中…</div>
+        </div>
+        <div class="panel">
+          <h2>喊單彙整（+1 與待採購參考）</h2>
+          <p class="muted" style="margin: 0 0 8px 0">人數＝有留稱呼的筆數；可匯出 CSV 再配官方 LINE 對帳。</p>
+          <div class="form-row" style="flex-direction: row; flex-wrap: wrap; gap: 8px; align-items: end">
+            <button type="button" class="btn btn-ghost" id="btnCsv">匯出 CSV</button>
+          </div>
+          <div class="table-wrap" id="ordWrap" style="margin-top: 8px">載入中…</div>
+        </div>
+        <div class="panel" id="panelBak" hidden>
+          <h2>本機備份 / 還原</h2>
+          <p class="muted">僅在「本機模式」可完全離線。雲端請用 Supabase 後台。</p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
+            <button type="button" class="btn btn-ghost" id="btnExportBak">下載備份 JSON</button>
+            <input type="file" id="importBak2" accept="application/json" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast" id="atoast" role="status" aria-live="polite" style="bottom: 16px"></div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"
+    ></script>
+    <script src="./js/config.js"></script>
+    <script src="./js/sheet.js"></script>
+    <script src="./js/cloudinary.js"></script>
+    <script>
+      (function () {
+        var c = window.GACHA_CONFIG || {}
+        if (c.mode === "supabase" && c.supabaseUrl) {
+        } else {
+        }
+      })()
+    </script>
+    <script src="./js/data.js"></script>
+    <script src="./js/admin.js"></script>
+  </body>
+</html>

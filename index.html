@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#fffcf8" />
+    <title>扭蛋連線 · 團圖</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/app.css" />
+  </head>
+  <body>
+    <header class="site-top">
+      <div class="brand">
+        <h1 id="pageTitle">扭蛋連線 · 團圖</h1>
+        <p id="subTitle">一鍵複製喊單、彙整已喊數量</p>
+      </div>
+    </header>
+    <div class="toolbar">
+      <div class="chip" id="modeChip">本機模式</div>
+      <div style="display: flex; gap: 8px; flex: 1; min-width: 0; justify-content: flex-end">
+        <input
+          type="search"
+          id="search"
+          placeholder="搜尋品名、團次、備註…"
+          style="width: 100%; max-width: 240px"
+        />
+        <button type="button" class="btn btn-ghost" id="btnRefresh">重新整理</button>
+        <a class="btn btn-ghost" href="./admin.html" style="text-decoration: none; line-height: 1.1"
+          >後台</a
+        >
+      </div>
+    </div>
+    <section class="stats" id="statSection">
+      <div class="stat-card">
+        <p class="stat-title">本團待採購參考（已喊件數彙整）</p>
+        <div class="stat-grid" id="statGrid"></div>
+      </div>
+    </section>
+    <main class="list" id="list" aria-live="polite"></main>
+    <p class="hint">貼上官方 LINE 前請再確認內文；+1 會一併記入本頁統計。</p>
+
+    <div class="overlay" id="orderModal" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="orderTitle">
+        <h3 id="orderTitle"></h3>
+        <p class="muted" style="margin: 0 0 10px 0">填寫後送出即登記 +1，並產生可貼上 LINE 的內文。</p>
+        <div class="form-row">
+          <label for="oName">稱呼（可暱稱，方便統計誰喊單）</label>
+          <input type="text" id="oName" autocomplete="name" placeholder="例：小安" />
+        </div>
+        <div class="form-row">
+          <label for="oQty">數量</label>
+          <input type="number" id="oQty" min="1" max="999" value="1" inputmode="numeric" />
+        </div>
+        <div class="form-row">
+          <label for="orderPreview">喊單內文預覽</label>
+          <textarea id="orderPreview" readonly style="min-height: 120px; font-size: 0.85rem"></textarea>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px">
+          <button type="button" class="btn btn-ghost" id="orderCopy">再複製一次內文</button>
+          <div style="display: flex; gap: 8px">
+            <button type="button" class="btn btn-ghost" id="orderCancel" style="flex: 1">關閉</button>
+            <button type="button" class="btn btn-primary" id="orderSubmit" style="flex: 1">
+              登記 +1
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"
+    ></script>
+    <script src="./js/config.js"></script>
+    <script src="./js/sheet.js"></script>
+    <script src="./js/cloudinary.js"></script>
+    <script>
+      (function () {
+        var c = window.GACHA_CONFIG || {}
+        var ps = c.productSource || (c.mode === "supabase" ? "supabase" : "local")
+        var m = document.getElementById("modeChip")
+        if (!m) return
+        if (ps === "sheet") m.textContent = "試算表 + Cloudinary"
+        else if (c.mode === "supabase" && c.supabaseUrl) m.textContent = "雲端團圖"
+        else m.textContent = "本機模式"
+      })()
+    </script>
+    <script src="./js/data.js"></script>
+    <script src="./js/shop.js"></script>
+  </body>
+</html>
